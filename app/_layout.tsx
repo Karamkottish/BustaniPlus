@@ -49,11 +49,16 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    // app/_layout.tsx
+<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+  <Stack screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="(tabs)" />
+    <Stack.Screen name="onboarding" />
+    <Stack.Screen name="choose-role" />
+    <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+  </Stack>
+</ThemeProvider>
+
   );
 }
+
