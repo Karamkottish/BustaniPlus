@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -6,176 +6,208 @@ import {
   StyleSheet,
   Dimensions,
   Animated,
+  TextInput,
+  Keyboard,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Svg, Circle, Path, Rect } from 'react-native-svg';
+import { useRouter } from 'expo-router';
+import { PanGestureHandler } from 'react-native-gesture-handler';
+import VisitorConfirmPopup from '../components/VisitorConfirmPopup';
 
-const { height } = Dimensions.get('window');
 
-const AnimatedGradient = Animated.createAnimatedComponent(LinearGradient);
-const AnimatedPath = Animated.createAnimatedComponent(Path);
+const { height, width } = Dimensions.get('window');
 
 type Role = 'visitor' | 'producer' | 'farmer';
-
-/* ---------------------------------------------------
-   🎨 GRADIENT TOKENS (TYPE SAFE)
---------------------------------------------------- */
 
 const VISITOR_BG: [string, string] = ['#EAF6F3', '#D1FAE5'];
 const PRODUCER_BG: [string, string] = ['#FFF4E6', '#FFE0B2'];
 const FARMER_BG: [string, string] = ['#E8F5E9', '#C8E6C9'];
 const DARK_BG: [string, string] = ['#0F2A1D', '#0F2A1D'];
 
-/* ---------------------------------------------------
-   🎭 HUMAN SVG MICRO-STORIES
---------------------------------------------------- */
+/* ---------------- SVGs ---------------- */
 
-const VisitorSVG = ({ active }: { active: boolean }) => {
-  const y = useRef(new Animated.Value(0)).current;
+const VisitorSVG = () => (
+  <Svg width={120} height={120} viewBox="0 0 120 120">
+    <Circle cx="60" cy="32" r="14" fill="#FFD166" />
+    <Path d="M40 90 Q60 60 80 90" stroke="#0F2A1D" strokeWidth={6} fill="none" />
+    <Rect x="42" y="48" width="36" height="32" rx="10" fill="#4CAF8E" />
+  </Svg>
+);
 
-  useEffect(() => {
-    if (!active) return;
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(y, { toValue: -6, duration: 1200, useNativeDriver: true }),
-        Animated.timing(y, { toValue: 0, duration: 1200, useNativeDriver: true }),
-      ])
-    ).start();
-  }, [active]);
+const ProducerSVG = () => (
+  <Svg width={110} height={110} viewBox="0 0 120 120">
+    <Circle cx="60" cy="30" r="13" fill="#FFB703" />
+    <Rect x="38" y="48" width="44" height="30" rx="8" fill="#E29C5C" />
+    <Rect x="30" y="82" width="60" height="14" rx="6" fill="#6B3E26" />
+  </Svg>
+);
 
-  return (
-    <Animated.View style={{ transform: [{ translateY: y }] }}>
-      <Svg width={120} height={120} viewBox="0 0 120 120">
-        <Circle cx="60" cy="32" r="14" fill="#FFD166" />
-        <Path d="M40 90 Q60 60 80 90" stroke="#0F2A1D" strokeWidth={6} fill="none" />
-        <Rect x="42" y="48" width="36" height="32" rx="10" fill="#4CAF8E" />
-      </Svg>
-    </Animated.View>
-  );
-};
+const FarmerSVG = () => (
+  <Svg width={110} height={110} viewBox="0 0 120 120">
+    <Circle cx="60" cy="30" r="13" fill="#90BE6D" />
+    <Rect x="48" y="48" width="24" height="32" rx="6" fill="#2E7D32" />
+    <Path d="M60 90 C60 80 45 70 45 58" stroke="#1E7F5C" strokeWidth={4} fill="none" />
+  </Svg>
+);
 
-const ProducerSVG = ({ active }: { active: boolean }) => {
-  const scale = useRef(new Animated.Value(1)).current;
+/* ---------------- Login Preview ---------------- */
 
-  useEffect(() => {
-    if (!active) return;
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(scale, { toValue: 1.06, duration: 900, useNativeDriver: true }),
-        Animated.timing(scale, { toValue: 1, duration: 900, useNativeDriver: true }),
-      ])
-    ).start();
-  }, [active]);
+function LoginPreview({ role }: { role: Role }) {
+  const router = useRouter();
 
   return (
-    <Animated.View style={{ transform: [{ scale }] }}>
-      <Svg width={110} height={110} viewBox="0 0 120 120">
-        <Circle cx="60" cy="30" r="13" fill="#FFB703" />
-        <Rect x="38" y="48" width="44" height="30" rx="8" fill="#E29C5C" />
-        <Rect x="30" y="82" width="60" height="14" rx="6" fill="#6B3E26" />
-      </Svg>
-    </Animated.View>
-  );
-};
+    <View style={styles.loginContent}>
+      <Text style={styles.loginTitle}>
+        {role === 'producer' ? 'Producer Login' : 'Farmer Login'}
+      </Text>
 
-const FarmerSVG = ({ active }: { active: boolean }) => {
-  const grow = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (!active) return;
-
-    Animated.loop(
-      Animated.timing(grow, {
-        toValue: 1,
-        duration: 1800,
-        useNativeDriver: true,
-      })
-    ).start();
-  }, [active]);
-
-  return (
-    <Svg width={110} height={110} viewBox="0 0 120 120">
-      {/* Head */}
-      <Circle cx="60" cy="30" r="13" fill="#90BE6D" />
-
-      {/* Body */}
-      <Rect x="48" y="48" width="24" height="32" rx="6" fill="#2E7D32" />
-
-      {/* 🌱 Animated plant (wrapped) */}
-      <Animated.View
-        style={{
-          transform: [
-            {
-              scaleY: grow.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.6, 1],
-              }),
-            },
-          ],
-        }}
-      >
-        <Svg width={110} height={110} viewBox="0 0 120 120">
-          <Path
-            d="M60 90 C60 80 45 70 45 58"
-            stroke="#1E7F5C"
-            strokeWidth={4}
-            fill="none"
-          />
-        </Svg>
-      </Animated.View>
-    </Svg>
-  );
-};
-
-
-/* ---------------------------------------------------
-   🌬 AMBIENT BACKGROUND PARTICLES
---------------------------------------------------- */
-
-const AmbientDots = () =>
-  Array.from({ length: 14 }).map((_, i) => {
-    const y = useRef(new Animated.Value(Math.random() * height)).current;
-
-    useEffect(() => {
-      Animated.loop(
-        Animated.timing(y, {
-          toValue: -40,
-          duration: 9000 + Math.random() * 4000,
-          useNativeDriver: true,
-        })
-      ).start();
-    }, []);
-
-    return (
-      <Animated.View
-        key={i}
-        style={{
-          position: 'absolute',
-          width: 6,
-          height: 6,
-          borderRadius: 3,
-          backgroundColor: 'rgba(255,255,255,0.08)',
-          left: Math.random() * 360,
-          transform: [{ translateY: y }],
-        }}
+      <TextInput
+        placeholder="Email address"
+        placeholderTextColor="#9CA3AF"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        style={styles.input}
       />
-    );
-  });
 
-/* ---------------------------------------------------
-   🌟 MAIN SCREEN
---------------------------------------------------- */
+      <TextInput
+        placeholder="Password"
+        placeholderTextColor="#9CA3AF"
+        secureTextEntry
+        style={styles.input}
+      />
+
+      <Pressable
+        style={styles.loginButton}
+        onPress={() =>
+          router.push({
+            pathname: '/login',
+            params: { role },
+          })
+        }
+      >
+        <Text style={styles.loginButtonText}>Login</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/* ---------------- Screen ---------------- */
 
 export default function ChooseRoleScreen() {
   const [active, setActive] = useState<Role | null>(null);
+  const [overlayRole, setOverlayRole] = useState<Role | null>(null);
+const [visitorPopup, setVisitorPopup] = useState(false);
+  const flip = useRef(new Animated.Value(0)).current;
+  const open = useRef(new Animated.Value(0)).current;
+  const keyboardY = useRef(new Animated.Value(0)).current;
+  const swipeX = useRef(new Animated.Value(0)).current;
 
-  const focus = (role: Role) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  /* ---------- Keyboard lift ---------- */
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const show = Keyboard.addListener(showEvent as any, (e: any) => {
+      const kh = e?.endCoordinates?.height ?? 0;
+      Animated.timing(keyboardY, {
+        toValue: -Math.min(180, kh / 2.2),
+        duration: 220,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    const hide = Keyboard.addListener(hideEvent as any, () => {
+      Animated.timing(keyboardY, {
+        toValue: 0,
+        duration: 220,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
+  /* ---------- Open overlay ---------- */
+  const openOverlay = (role: Role) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setActive(role);
+    setOverlayRole(role);
+
+    flip.setValue(0);
+    open.setValue(0);
+    swipeX.setValue(0);
+
+    Animated.sequence([
+      Animated.timing(flip, {
+        toValue: 1,
+        duration: 450,
+        useNativeDriver: true,
+      }),
+      Animated.timing(open, {
+        toValue: 1,
+        duration: 320,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
-  const bgColors: [string, string] =
+  /* ---------- Close overlay ---------- */
+  const closeOverlay = () => {
+    Animated.parallel([
+      Animated.timing(open, { toValue: 0, duration: 220, useNativeDriver: true }),
+      Animated.timing(flip, { toValue: 0, duration: 220, useNativeDriver: true }),
+      Animated.timing(swipeX, { toValue: 0, duration: 220, useNativeDriver: true }),
+    ]).start(() => {
+      setOverlayRole(null);
+      setActive(null);
+    });
+  };
+
+  /* ---------- Swipe gesture ---------- */
+  const onGestureEvent = Animated.event(
+    [{ nativeEvent: { translationX: swipeX } }],
+    { useNativeDriver: true }
+  );
+
+  const onGestureEnd = ({ nativeEvent }: any) => {
+    const { translationX, velocityX } = nativeEvent;
+
+    if (Math.abs(translationX) > 120 || Math.abs(velocityX) > 800) {
+      Animated.timing(swipeX, {
+        toValue: translationX > 0 ? width : -width,
+        duration: 180,
+        useNativeDriver: true,
+      }).start(closeOverlay);
+    } else {
+      Animated.spring(swipeX, {
+        toValue: 0,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  const overlayRotate = flip.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+
+  const overlayScaleY = open.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.35, 1],
+  });
+
+  const overlayOpacity = open.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
+  const bgColors =
     active === 'visitor'
       ? VISITOR_BG
       : active === 'producer'
@@ -185,70 +217,74 @@ export default function ChooseRoleScreen() {
       : DARK_BG;
 
   return (
-    <AnimatedGradient colors={bgColors} style={styles.container}>
-      <AmbientDots />
-
+    <LinearGradient colors={bgColors} style={styles.container}>
       <Text style={styles.title}>Choose Your Role</Text>
       <Text style={styles.subtitle}>Personalize your Bustani+ experience</Text>
 
-      {/* VISITOR */}
-      <Pressable
-        style={[styles.cardLarge, active && active !== 'visitor' && styles.dim]}
-        onPress={() => focus('visitor')}
-      >
-        <VisitorSVG active={active === 'visitor'} />
+<Pressable
+  style={[styles.cardLarge, overlayRole && styles.dim]}
+  onPress={() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setVisitorPopup(true);
+  }}
+>
+        <VisitorSVG />
         <Text style={styles.cardTitle}>Visitor</Text>
         <Text style={styles.cardText}>Explore farms & agritourism</Text>
       </Pressable>
 
-      {/* BOTTOM */}
       <View style={styles.row}>
-        <Pressable
-          style={[styles.cardSmall, active && active !== 'producer' && styles.dim]}
-          onPress={() => focus('producer')}
-        >
-          <ProducerSVG active={active === 'producer'} />
+        <Pressable style={[styles.cardSmall, overlayRole && styles.dim]} onPress={() => openOverlay('producer')}>
+          <ProducerSVG />
           <Text style={styles.cardTitle}>Producer</Text>
           <Text style={styles.cardText}>Sell & manage products</Text>
         </Pressable>
 
-        <Pressable
-          style={[styles.cardSmall, active && active !== 'farmer' && styles.dim]}
-          onPress={() => focus('farmer')}
-        >
-          <FarmerSVG active={active === 'farmer'} />
+        <Pressable style={[styles.cardSmall, overlayRole && styles.dim]} onPress={() => openOverlay('farmer')}>
+          <FarmerSVG />
           <Text style={styles.cardTitle}>Farmer</Text>
           <Text style={styles.cardText}>Smart farming insights</Text>
         </Pressable>
       </View>
-    </AnimatedGradient>
+
+      {overlayRole && (
+        <PanGestureHandler onGestureEvent={onGestureEvent} onEnded={onGestureEnd}>
+          <Animated.View
+            style={[
+              styles.overlayCard,
+              {
+                opacity: overlayOpacity,
+                transform: [
+                  { perspective: 1200 },
+                  { translateX: swipeX },
+                  { rotateY: overlayRotate },
+                  { translateY: keyboardY },
+                  { scaleY: overlayScaleY },
+                ],
+              },
+            ]}
+          >
+            <Animated.View style={{ flex: 1, transform: [{ rotateY: overlayRotate }] }}>
+              <LoginPreview role={overlayRole} />
+            </Animated.View>
+          </Animated.View>
+        </PanGestureHandler>
+      )}
+      <VisitorConfirmPopup
+  visible={visitorPopup}
+  onClose={() => setVisitorPopup(false)}
+/>
+
+    </LinearGradient>
   );
 }
 
-/* ---------------------------------------------------
-   🎨 STYLES — MATERIAL 3 / 2026
---------------------------------------------------- */
+/* ---------------- Styles ---------------- */
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 56,
-    paddingHorizontal: 20,
-  },
-
-  title: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 6,
-  },
-
-  subtitle: {
-    fontSize: 15,
-    color: '#CDE7DF',
-    marginBottom: 28,
-  },
-
+  container: { flex: 1, paddingTop: 56, paddingHorizontal: 20 },
+  title: { fontSize: 30, fontWeight: '800', color: '#FFFFFF' },
+  subtitle: { color: '#CDE7DF', marginBottom: 28 },
   cardLarge: {
     height: height * 0.32,
     borderRadius: 28,
@@ -256,14 +292,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-    elevation: 8,
   },
-
-  row: {
-    flexDirection: 'row',
-    gap: 14,
-  },
-
+  row: { flexDirection: 'row', gap: 14 },
   cardSmall: {
     flex: 1,
     height: height * 0.28,
@@ -271,24 +301,36 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.96)',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 6,
   },
-
-  dim: {
-    opacity: 0.5,
+  dim: { opacity: 0.25 },
+  cardTitle: { fontSize: 18, fontWeight: '700', marginTop: 10 },
+  cardText: { fontSize: 13, color: '#3A3A3A', marginTop: 4, textAlign: 'center' },
+  overlayCard: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    top: height * 0.35,
+    height: height * 0.85,
+    borderRadius: 28,
+    backgroundColor: '#FFFFFF',
+    elevation: 14,
+    overflow: 'hidden',
   },
-
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginTop: 10,
-    color: '#1B120E',
+  loginContent: { flex: 1, justifyContent: 'center', padding: 24 },
+  loginTitle: { fontSize: 22, fontWeight: '800', marginBottom: 20 },
+  input: {
+    height: 50,
+    borderRadius: 14,
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 16,
+    marginBottom: 14,
   },
-
-  cardText: {
-    fontSize: 13,
-    color: '#3A3A3A',
-    marginTop: 4,
-    textAlign: 'center',
+  loginButton: {
+    height: 50,
+    borderRadius: 16,
+    backgroundColor: '#1E7F5C',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  loginButtonText: { color: '#FFFFFF', fontWeight: '700', fontSize: 16 },
 });
