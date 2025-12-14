@@ -26,23 +26,21 @@ export default function VisitorLayout() {
         headerShown: false,
         tabBarActiveTintColor: '#FFD166',
         tabBarInactiveTintColor: '#E6C3A1',
-
         tabBarStyle: {
           height: 82,
           paddingBottom: 10,
-          backgroundColor: '#6B3E26', // 🌱 soil
+          backgroundColor: '#6B3E26',
           position: 'absolute',
           left: 0,
           right: 0,
-          // ⛔ removed border radius → square edges
         },
-
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
         },
       }}
     >
+      {/* 🏠 HOME */}
       <Tabs.Screen
         name="index"
         options={{
@@ -61,6 +59,7 @@ export default function VisitorLayout() {
         }}
       />
 
+      {/* 🗺 FARMS */}
       <Tabs.Screen
         name="map"
         options={{
@@ -76,6 +75,7 @@ export default function VisitorLayout() {
         }}
       />
 
+      {/* 📅 BOOK */}
       <Tabs.Screen
         name="book"
         options={{
@@ -91,6 +91,7 @@ export default function VisitorLayout() {
         }}
       />
 
+      {/* 👓 AR TOUR */}
       <Tabs.Screen
         name="ar-tour"
         options={{
@@ -105,6 +106,7 @@ export default function VisitorLayout() {
         }}
       />
 
+      {/* 🎮 KIDS */}
       <Tabs.Screen
         name="kids"
         options={{
@@ -119,6 +121,26 @@ export default function VisitorLayout() {
           ),
         }}
       />
+
+      {/* 📘 PASSPORT */}
+      <Tabs.Screen
+        name="passport"
+        options={{
+          title: 'Passport',
+          tabBarIcon: ({ color, size, focused }) => (
+            <AnimatedTabIcon
+              name="book"
+              size={size}
+              color={color}
+              focused={focused}
+            />
+          ),
+        }}
+      />
+
+      {/* 🚫 HIDDEN ROUTES */}
+      <Tabs.Screen name="schedule" options={{ href: null }} />
+      <Tabs.Screen name="farm/[id]" options={{ href: null }} />
     </Tabs>
   );
 }
