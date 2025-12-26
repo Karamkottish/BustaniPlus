@@ -5,11 +5,13 @@ import {
   Pressable,
   Animated,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 const { height } = Dimensions.get('window');
 
@@ -21,7 +23,7 @@ const RIYADH = {
   longitudeDelta: 0.05,
 };
 
-/* 🌱 Farms (API-ready) */
+/* 🌱 Farms */
 const FARMS = [
   {
     id: '1',
@@ -51,6 +53,7 @@ const FARMS = [
 
 export default function FarmMap() {
   const router = useRouter();
+  const tabBarHeight = useBottomTabBarHeight(); // ✅ IMPORTANT
   const pulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -71,68 +74,85 @@ export default function FarmMap() {
   }, []);
 
   const goToFarm = (id: string) => {
-    router.push({
-      pathname: '/visitor/farm/[id]',
-      params: { id },
-    });
+    router.push(`/farm/${id}`);
   };
 
   return (
     <LinearGradient colors={['#EAF6F3', '#F6FBF9']} style={styles.container}>
-      {/* 🗺 MAP BOX */}
-      <View style={styles.mapBox}>
-        <MapView style={StyleSheet.absoluteFill} initialRegion={RIYADH}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingBottom: 260 }} // ✅ space for button
+      >
+        {/* 🗺 MAP */}
+        <View style={styles.mapBox} pointerEvents="box-none">
+          <MapView style={StyleSheet.absoluteFill} initialRegion={RIYADH}>
+            {FARMS.map((farm) => (
+              <Marker
+                key={farm.id}
+                coordinate={{
+                  latitude: farm.latitude,
+                  longitude: farm.longitude,
+                }}
+                onPress={() => goToFarm(farm.id)}
+              >
+                <Animated.Text
+                  style={[
+                    styles.marker,
+                    { transform: [{ scale: pulse }] },
+                  ]}
+                >
+                  📍
+                </Animated.Text>
+              </Marker>
+            ))}
+          </MapView>
+        </View>
+
+        {/* 🌤 WEATHER */}
+        <View style={styles.weatherBox}>
+          <Text style={styles.sectionTitle}>🌤 Recommended Today</Text>
+          {FARMS.map((f) => (
+            <Text key={f.id} style={styles.weatherItem}>
+              {f.weatherTag} — {f.name}
+            </Text>
+          ))}
+        </View>
+
+        {/* 🌱 FARM LIST */}
+        <View style={styles.list}>
           {FARMS.map((farm) => (
-            <Marker
+            <Pressable
               key={farm.id}
-              coordinate={{
-                latitude: farm.latitude,
-                longitude: farm.longitude,
-              }}
+              style={styles.card}
               onPress={() => goToFarm(farm.id)}
             >
-              <Animated.Text
-                style={[
-                  styles.marker,
-                  { transform: [{ scale: pulse }] },
-                ]}
-              >
-                📍
-              </Animated.Text>
-            </Marker>
+              <Text style={styles.cardTitle}>{farm.name}</Text>
+              <Text style={styles.meta}>
+                {farm.category} • {farm.weatherTag}
+              </Text>
+
+              <View style={styles.actions}>
+                <Text>🧭 Navigate</Text>
+                <Text>📅 Book</Text>
+              </View>
+            </Pressable>
           ))}
-        </MapView>
-      </View>
+        </View>
+      </ScrollView>
 
-      {/* 🌤 WEATHER SUGGESTIONS */}
-      <View style={styles.weatherBox}>
-        <Text style={styles.sectionTitle}>🌤 Recommended Today</Text>
-        {FARMS.map((f) => (
-          <Text key={f.id} style={styles.weatherItem}>
-            {f.weatherTag} — {f.name}
-          </Text>
-        ))}
-      </View>
-
-      {/* 🌱 FARM LIST */}
-      <View style={styles.list}>
-        {FARMS.map((farm) => (
-          <Pressable
-            key={farm.id}
-            style={styles.card}
-            onPress={() => goToFarm(farm.id)}
-          >
-            <Text style={styles.cardTitle}>{farm.name}</Text>
-            <Text style={styles.meta}>
-              {farm.category} • {farm.weatherTag}
-            </Text>
-
-            <View style={styles.actions}>
-              <Text>🧭 Navigate</Text>
-              <Text>📅 Book</Text>
-            </View>
-          </Pressable>
-        ))}
+      {/* 🥤 ORDER DRINK BUTTON — FLOATING ABOVE TAB BAR */}
+      <View
+        style={[
+          styles.orderDrinkWrapper,
+          { bottom: tabBarHeight + 16 }, // ✅ THIS FIXES IT
+        ]}
+      >
+        <Pressable
+          style={styles.orderDrinkBtn}
+          onPress={() => router.push('/ordering-drink')}
+        >
+          <Text style={styles.orderDrinkText}>🥤 Order a Drink</Text>
+        </Pressable>
       </View>
     </LinearGradient>
   );
@@ -194,5 +214,24 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+
+  /* 🥤 ORDER DRINK */
+  orderDrinkWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+  },
+  orderDrinkBtn: {
+    backgroundColor: '#1E7F5C',
+    paddingVertical: 16,
+    borderRadius: 20,
+    alignItems: 'center',
+  },
+  orderDrinkText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
   },
 });

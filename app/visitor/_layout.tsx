@@ -138,9 +138,6 @@ export default function VisitorLayout() {
         }}
       />
 
-      {/* 🚫 HIDDEN ROUTES */}
-      <Tabs.Screen name="schedule" options={{ href: null }} />
-      <Tabs.Screen name="farm/[id]" options={{ href: null }} />
     </Tabs>
   );
 }

@@ -153,7 +153,7 @@ export default function VisitorHome() {
 
       <Pressable
         style={styles.primary}
-        onPress={() => router.push('/visitor/schedule')}
+        onPress={() => router.push('/schedule')}
       >
         <Text style={styles.primaryText}>📅 Festival Schedule</Text>
       </Pressable>
