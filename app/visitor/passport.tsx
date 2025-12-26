@@ -13,47 +13,73 @@ import { Animated } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
+/* =======================
+   STAMP DATA (ADDED)
+======================= */
+
+const STAMPS = [
+  {
+    image: require('../../assets/images/orangestamp.jpg'),
+    farm: 'Orange Farm',
+    qr: 'QR-OF-2030-01',
+    date: '12 MAR 2030',
+  },
+  {
+    image: require('../../assets/images/organicstamp.jpg'),
+    farm: 'Organic Garden',
+    qr: 'QR-OG-2030-02',
+    date: '15 MAR 2030',
+  },
+  {
+    image: require('../../assets/images/heritagestamp.jpg'),
+    farm: 'Heritage Farm',
+    qr: 'QR-HF-2030-03',
+    date: '20 MAR 2030',
+  },
+];
+
 export default function Passport() {
   const [stamps, setStamps] = useState(3);
-    const stampScale = useState(() => new Animated.Value(0.6))[0];
-const stampGlow = useState(() => new Animated.Value(0))[0];
-const animateStamp = () => {
-  stampScale.setValue(0.6);
-  stampGlow.setValue(0);
 
-  Animated.parallel([
-    Animated.spring(stampScale, {
-      toValue: 1,
-      friction: 4,
-      useNativeDriver: true,
-    }),
-    Animated.sequence([
-      Animated.timing(stampGlow, {
+  const stampScale = useState(() => new Animated.Value(0.6))[0];
+  const stampGlow = useState(() => new Animated.Value(0))[0];
+
+  const animateStamp = () => {
+    stampScale.setValue(0.6);
+    stampGlow.setValue(0);
+
+    Animated.parallel([
+      Animated.spring(stampScale, {
         toValue: 1,
-        duration: 300,
+        friction: 4,
         useNativeDriver: true,
       }),
-      Animated.timing(stampGlow, {
-        toValue: 0,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-    ]),
-  ]).start();
-};
+      Animated.sequence([
+        Animated.timing(stampGlow, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(stampGlow, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+  };
 
   return (
-    <ScrollView
-      horizontal
-      pagingEnabled
-      showsHorizontalScrollIndicator={false}
-      style={styles.book}
-    >
+    <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.book}>
+
       {/* =======================
           📘 PAGE 1 – COVER
       ======================== */}
       <LinearGradient colors={['#0B6E4F', '#145A32']} style={styles.page}>
         <View style={styles.pattern} />
+
+        {/* Passport Watermark */}
+        <Text style={styles.watermark}>BP-2030-001</Text>
 
         <Image
           source={require('../../assets/images/bustani.png')}
@@ -80,12 +106,10 @@ const animateStamp = () => {
       <LinearGradient colors={['#145A32', '#0B6E4F']} style={styles.page}>
         <View style={styles.pattern} />
 
-        {/* 🧒 Virtual Avatar */}
+        <Text style={styles.watermark}>BP-2030-001</Text>
+
         <View style={styles.avatarWrapper}>
-          <LinearGradient
-            colors={['#34D399', '#1E7F5C']}
-            style={styles.virtualAvatar}
-          >
+          <LinearGradient colors={['#34D399', '#1E7F5C']} style={styles.virtualAvatar}>
             <Text style={styles.avatarEmoji}>🙂</Text>
             <Text style={styles.avatarInitials}>SK</Text>
           </LinearGradient>
@@ -100,6 +124,14 @@ const animateStamp = () => {
           <Text style={styles.profileRow}>🌿 Program: Bustani+</Text>
         </View>
 
+        {/* Farm Stamp */}
+        <View style={styles.stampBlock}>
+          <Image source={STAMPS[0].image} style={styles.stampImage} />
+          <Text style={styles.stampFarm}>{STAMPS[0].farm}</Text>
+          <Text style={styles.stampDate}>{STAMPS[0].date}</Text>
+          <Text style={styles.qrText}>🔐 {STAMPS[0].qr}</Text>
+        </View>
+
         <Text style={styles.swipeHint}>Swipe →</Text>
       </LinearGradient>
 
@@ -111,47 +143,51 @@ const animateStamp = () => {
         <Text style={styles.progress}>{stamps} / 10 Stamps Collected</Text>
 
         <View style={styles.stampsRow}>
-  {Array.from({ length: 10 }).map((_, i) => {
-    const isActive = i < stamps;
-    const isLast = i === stamps - 1;
+          {Array.from({ length: 10 }).map((_, i) => {
+            const isActive = i < stamps;
+            const isLast = i === stamps - 1;
 
-    return (
-      <Animated.View
-        key={i}
-        style={[
-          styles.stamp,
-          isActive && styles.stampActive,
-          isLast && {
-            transform: [{ scale: stampScale }],
-            shadowColor: '#FFD166',
-            shadowOpacity: stampGlow,
-            shadowRadius: 10,
-          },
-        ]}
-      >
-        <Text style={{ fontSize: 20 }}>
-          {isActive ? '🍊' : '⬜'}
-        </Text>
-      </Animated.View>
-    );
-  })}
-</View>
+            return (
+              <Animated.View
+                key={i}
+                style={[
+                  styles.stamp,
+                  isActive && styles.stampActive,
+                  isLast && {
+                    transform: [{ scale: stampScale }],
+                    shadowColor: '#FFD166',
+                    shadowOpacity: stampGlow,
+                    shadowRadius: 10,
+                  },
+                ]}
+              >
+                <Text style={{ fontSize: 20 }}>
+                  {isActive ? '🍊' : '⬜'}
+                </Text>
+              </Animated.View>
+            );
+          })}
+        </View>
 
+        {/* Second Stamp */}
+        <View style={styles.stampBlock}>
+          <Image source={STAMPS[1].image} style={styles.stampImage} />
+          <Text style={styles.stampFarm}>{STAMPS[1].farm}</Text>
+          <Text style={styles.stampDate}>{STAMPS[1].date}</Text>
+          <Text style={styles.qrText}>🔐 {STAMPS[1].qr}</Text>
+        </View>
 
         <Pressable
-  style={styles.button}
-  onPress={() => {
-    if (stamps < 10) {
-      setStamps((s) => s + 1);
-      animateStamp();
-    }
-  }}
->
-  <Text style={styles.buttonText}>
-    📸 Scan QR → Add Stamp
-  </Text>
-</Pressable>
-
+          style={styles.button}
+          onPress={() => {
+            if (stamps < 10) {
+              setStamps((s) => s + 1);
+              animateStamp();
+            }
+          }}
+        >
+          <Text style={styles.buttonText}>📸 Scan QR → Add Stamp</Text>
+        </Pressable>
       </View>
 
       {/* =======================
@@ -166,6 +202,14 @@ const animateStamp = () => {
           <Text style={styles.rewardBig}>👑 Citrus Explorer Unlocked!</Text>
         )}
 
+        {/* Third Stamp */}
+        <View style={styles.stampBlock}>
+          <Image source={STAMPS[2].image} style={styles.stampImage} />
+          <Text style={styles.stampFarm}>{STAMPS[2].farm}</Text>
+          <Text style={styles.stampDate}>{STAMPS[2].date}</Text>
+          <Text style={styles.qrText}>🔐 {STAMPS[2].qr}</Text>
+        </View>
+
         <Text style={styles.note}>
           Visit farms & scan QR codes to unlock rewards
         </Text>
@@ -175,7 +219,7 @@ const animateStamp = () => {
 }
 
 /* =======================
-   STYLES
+   STYLES (ONLY ADDED)
 ======================= */
 const styles = StyleSheet.create({
   book: { flex: 1, backgroundColor: '#F4F9F6' },
@@ -188,35 +232,27 @@ const styles = StyleSheet.create({
     padding: 24,
   },
 
+  innerPage: { backgroundColor: '#FFFFFF' },
+
   pattern: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.06,
+    opacity: 0.05,
     backgroundColor: '#FFFFFF',
   },
 
-  bustaniLogo: {
-    width: 110,
-    height: 110,
-    marginBottom: 20,
+  watermark: {
+    position: 'absolute',
+    fontSize: 52,
+    fontWeight: '900',
+    color: 'rgba(255,255,255,0.06)',
+    transform: [{ rotate: '-30deg' }],
   },
 
-  arabicTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#FDE68A',
-  },
+  bustaniLogo: { width: 110, height: 110, marginBottom: 20 },
 
-  title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-
-  brand: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#D1FAE5',
-  },
+  arabicTitle: { fontSize: 22, fontWeight: '700', color: '#FDE68A' },
+  title: { fontSize: 26, fontWeight: '800', color: '#FFFFFF' },
+  brand: { marginTop: 8, fontSize: 14, color: '#D1FAE5' },
 
   visionLogo: {
     position: 'absolute',
@@ -232,7 +268,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* 👤 PROFILE */
   avatarWrapper: {
     width: 120,
     height: 120,
@@ -253,28 +288,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  avatarEmoji: {
-    fontSize: 42,
-    marginBottom: -4,
-  },
+  avatarEmoji: { fontSize: 42 },
+  avatarInitials: { fontSize: 16, fontWeight: '800', color: '#ECFDF5' },
 
-  avatarInitials: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#ECFDF5',
-    opacity: 0.9,
-  },
-
-  profileName: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-
-  profileSub: {
-    color: '#D1FAE5',
-    marginBottom: 16,
-  },
+  profileName: { fontSize: 22, fontWeight: '800', color: '#FFFFFF' },
+  profileSub: { color: '#D1FAE5', marginBottom: 16 },
 
   profileCard: {
     width: '90%',
@@ -283,27 +301,10 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 
-  profileRow: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    marginBottom: 6,
-  },
+  profileRow: { color: '#FFFFFF', fontWeight: '600', marginBottom: 6 },
 
-  /* 📄 INNER */
-  innerPage: { backgroundColor: '#FFFFFF' },
-
-  pageTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#1E7F5C',
-    marginBottom: 16,
-  },
-
-  progress: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 20,
-  },
+  pageTitle: { fontSize: 24, fontWeight: '800', color: '#1E7F5C' },
+  progress: { fontSize: 18, fontWeight: '600', marginBottom: 20 },
 
   stampsRow: {
     flexDirection: 'row',
@@ -322,9 +323,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  stampActive: {
-    backgroundColor: '#1E7F5C',
-  },
+  stampActive: { backgroundColor: '#1E7F5C' },
 
   button: {
     height: 52,
@@ -333,27 +332,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
+    marginTop: 20,
   },
 
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
+  buttonText: { color: '#FFFFFF', fontWeight: '700' },
 
-  reward: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-
-  rewardBig: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#1E7F5C',
-  },
+  reward: { fontSize: 18, marginBottom: 10 },
+  rewardBig: { fontSize: 22, fontWeight: '800', color: '#1E7F5C' },
 
   note: {
     marginTop: 12,
     color: '#6B7280',
     textAlign: 'center',
+  },
+
+  /* 🟢 STAMP BLOCK */
+  stampBlock: {
+    marginTop: 24,
+    alignItems: 'center',
+    transform: [{ rotate: '-8deg' }],
+  },
+
+  stampImage: {
+    width: 130,
+    height: 130,
+    opacity: 0.9,
+  },
+
+  stampFarm: {
+    fontWeight: '800',
+    color: '#1E7F5C',
+    marginTop: 6,
+  },
+
+  stampDate: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#374151',
+  },
+
+  qrText: {
+    fontSize: 11,
+    marginTop: 4,
+    color: '#6B7280',
   },
 });
