@@ -9,10 +9,12 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function LoginScreen() {
-  const { role } = useLocalSearchParams<{ role: string }>();
+const params = useLocalSearchParams();
+const role = Array.isArray(params.role) ? params.role[0] : params.role;
+  const router = useRouter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +22,10 @@ export default function LoginScreen() {
 
   const passwordRef = useRef<TextInput>(null);
 
-  const isDisabled = !email || !password;
+const handleLogin = () => {
+  router.push({ pathname: '/producer' });
+};
+
 
   return (
     <View style={styles.container}>
@@ -79,19 +84,19 @@ export default function LoginScreen() {
                 placeholderTextColor="#9CA3AF"
                 secureTextEntry
                 returnKeyType="done"
+                onSubmitEditing={handleLogin} // ✅ enter key also logs in
                 onFocus={() => setFocused('password')}
                 onBlur={() => setFocused(null)}
                 style={styles.input}
               />
             </View>
 
-            {/* BUTTON */}
+            {/* BUTTON (always works even if fields empty) */}
             <Pressable
-              disabled={isDisabled}
+              onPress={handleLogin}
               style={({ pressed }) => [
                 styles.button,
-                isDisabled && styles.buttonDisabled,
-                pressed && !isDisabled && { opacity: 0.85 },
+                pressed && { opacity: 0.85 },
               ]}
             >
               <Text style={styles.buttonText}>Sign In</Text>
@@ -103,7 +108,6 @@ export default function LoginScreen() {
             </Text>
           </View>
 
-          {/* EXTRA SPACE FOR KEYBOARD */}
           <View style={{ height: 40 }} />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -152,8 +156,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
 
-  /* INPUTS */
-
   inputWrapper: {
     borderRadius: 16,
     backgroundColor: '#F3F4F6',
@@ -183,8 +185,6 @@ const styles = StyleSheet.create({
     padding: 0,
   },
 
-  /* BUTTON */
-
   button: {
     height: 52,
     borderRadius: 18,
@@ -194,17 +194,11 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
 
-  buttonDisabled: {
-    backgroundColor: '#9CA3AF',
-  },
-
   buttonText: {
     color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 16,
   },
-
-  /* FOOTER */
 
   footerText: {
     textAlign: 'center',

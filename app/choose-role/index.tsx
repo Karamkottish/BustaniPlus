@@ -58,6 +58,19 @@ const FarmerSVG = () => (
 function LoginPreview({ role }: { role: Role }) {
   const router = useRouter();
 
+  const handleLogin = () => {
+  if (role === 'producer') {
+    router.replace('/producer');
+    return;
+  }
+
+  if (role === 'farmer') {
+    // router.replace('/farmer');
+    return;
+  }
+};
+
+
   return (
     <View style={styles.loginContent}>
       <Text style={styles.loginTitle}>
@@ -67,8 +80,6 @@ function LoginPreview({ role }: { role: Role }) {
       <TextInput
         placeholder="Email address"
         placeholderTextColor="#9CA3AF"
-        keyboardType="email-address"
-        autoCapitalize="none"
         style={styles.input}
       />
 
@@ -79,20 +90,13 @@ function LoginPreview({ role }: { role: Role }) {
         style={styles.input}
       />
 
-      <Pressable
-        style={styles.loginButton}
-        onPress={() =>
-          router.push({
-            pathname: '/login',
-            params: { role },
-          })
-        }
-      >
+      <Pressable style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginButtonText}>Login</Text>
       </Pressable>
     </View>
   );
 }
+
 
 /* ---------------- Screen ---------------- */
 
