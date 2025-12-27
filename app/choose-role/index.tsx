@@ -59,16 +59,16 @@ function LoginPreview({ role }: { role: Role }) {
   const router = useRouter();
 
   const handleLogin = () => {
-  if (role === 'producer') {
-    router.replace('/producer');
-    return;
-  }
+    if (role === 'producer') {
+      router.replace('/producer');
+      return;
+    }
 
-  if (role === 'farmer') {
-    // router.replace('/farmer');
-    return;
-  }
-};
+    if (role === 'farmer') {
+      router.replace('/farmer' as any);
+      return;
+    }
+  };
 
 
   return (
@@ -103,7 +103,7 @@ function LoginPreview({ role }: { role: Role }) {
 export default function ChooseRoleScreen() {
   const [active, setActive] = useState<Role | null>(null);
   const [overlayRole, setOverlayRole] = useState<Role | null>(null);
-const [visitorPopup, setVisitorPopup] = useState(false);
+  const [visitorPopup, setVisitorPopup] = useState(false);
   const flip = useRef(new Animated.Value(0)).current;
   const open = useRef(new Animated.Value(0)).current;
   const keyboardY = useRef(new Animated.Value(0)).current;
@@ -215,23 +215,23 @@ const [visitorPopup, setVisitorPopup] = useState(false);
     active === 'visitor'
       ? VISITOR_BG
       : active === 'producer'
-      ? PRODUCER_BG
-      : active === 'farmer'
-      ? FARMER_BG
-      : DARK_BG;
+        ? PRODUCER_BG
+        : active === 'farmer'
+          ? FARMER_BG
+          : DARK_BG;
 
   return (
     <LinearGradient colors={bgColors} style={styles.container}>
       <Text style={styles.title}>Choose Your Role</Text>
       <Text style={styles.subtitle}>Personalize your Bustani+ experience</Text>
 
-<Pressable
-  style={[styles.cardLarge, overlayRole && styles.dim]}
-  onPress={() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setVisitorPopup(true);
-  }}
->
+      <Pressable
+        style={[styles.cardLarge, overlayRole && styles.dim]}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setVisitorPopup(true);
+        }}
+      >
         <VisitorSVG />
         <Text style={styles.cardTitle}>Visitor</Text>
         <Text style={styles.cardText}>Explore farms & agritourism</Text>
@@ -275,9 +275,9 @@ const [visitorPopup, setVisitorPopup] = useState(false);
         </PanGestureHandler>
       )}
       <VisitorConfirmPopup
-  visible={visitorPopup}
-  onClose={() => setVisitorPopup(false)}
-/>
+        visible={visitorPopup}
+        onClose={() => setVisitorPopup(false)}
+      />
 
     </LinearGradient>
   );

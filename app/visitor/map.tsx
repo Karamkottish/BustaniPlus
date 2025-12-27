@@ -23,33 +23,7 @@ const RIYADH = {
   longitudeDelta: 0.05,
 };
 
-/* 🌱 Farms */
-const FARMS = [
-  {
-    id: '1',
-    name: '🍊 Orange Farm',
-    category: 'Citrus',
-    weatherTag: '☀️ Best Today',
-    latitude: 24.719,
-    longitude: 46.68,
-  },
-  {
-    id: '2',
-    name: '🌿 Organic Garden',
-    category: 'Organic',
-    weatherTag: '🌿 Good for Heat',
-    latitude: 24.705,
-    longitude: 46.665,
-  },
-  {
-    id: '3',
-    name: '🏡 Heritage Farm',
-    category: 'Heritage',
-    weatherTag: '🧺 Indoor Friendly',
-    latitude: 24.73,
-    longitude: 46.69,
-  },
-];
+import { FARMS } from '../../constants/data';
 
 export default function FarmMap() {
   const router = useRouter();

@@ -12,8 +12,9 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function LoginScreen() {
-const params = useLocalSearchParams();
-const role = Array.isArray(params.role) ? params.role[0] : params.role;
+  const params = useLocalSearchParams();
+  const rawRole = Array.isArray(params.role) ? params.role[0] : params.role;
+  const role = rawRole ? rawRole.toLowerCase() : 'producer'; // Default to producer if missing
   const router = useRouter();
 
   const [email, setEmail] = useState('');
@@ -22,9 +23,13 @@ const role = Array.isArray(params.role) ? params.role[0] : params.role;
 
   const passwordRef = useRef<TextInput>(null);
 
-const handleLogin = () => {
-  router.push({ pathname: '/producer' });
-};
+  const handleLogin = () => {
+    if (role === 'farmer') {
+      router.push('/farmer' as any);
+    } else {
+      router.push('/producer');
+    }
+  };
 
 
   return (
