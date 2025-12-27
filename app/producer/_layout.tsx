@@ -5,9 +5,8 @@ export default function ProducerLayout() {
   return (
     <Tabs
       screenOptions={{ headerShown: false }}
-      tabBar={(props) => <ProducerTabBar {...props} />}
+      tabBar={(props) => <ProducerTabBar />}
     >
-      {/* MUST MATCH FILENAMES */}
       <Tabs.Screen name="home" />
       <Tabs.Screen name="products" />
       <Tabs.Screen name="orders" />
