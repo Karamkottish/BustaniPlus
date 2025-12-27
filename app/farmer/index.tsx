@@ -6,6 +6,7 @@ import {
   Pressable,
   Dimensions,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -20,9 +21,12 @@ const CHART_DATA = [50, 80, 45, 90, 60, 100, 70];
 const CHART_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 import AgriTechBackground from '@/components/AgriTechBackground';
+import LogoutModal from '@/components/LogoutModal';
+import { useState } from 'react';
 
 export default function FarmerDashboard() {
   const router = useRouter();
+  const [showLogout, setShowLogout] = useState(false);
 
   return (
     <AgriTechBackground>
@@ -47,7 +51,10 @@ export default function FarmerDashboard() {
                   <Text style={styles.greeting}>Hello, Farmer Ali 👋</Text>
                   <Text style={styles.date}>Wednesday, 27 Dec</Text>
                 </View>
-                <Pressable style={styles.profileBtn}>
+                <Pressable
+                  style={styles.profileBtn}
+                  onPress={() => setShowLogout(true)}
+                >
                   <ImagePlaceholder initials="FA" />
                 </Pressable>
               </View>
@@ -170,6 +177,15 @@ export default function FarmerDashboard() {
         <Pressable style={styles.fab} onPress={() => console.log('Quick Add')}>
           <Ionicons name="add" size={32} color="#FFF" />
         </Pressable>
+
+        <LogoutModal
+          visible={showLogout}
+          onClose={() => setShowLogout(false)}
+          onLogout={() => {
+            setShowLogout(false);
+            router.replace('/choose-role');
+          }}
+        />
       </View>
     </AgriTechBackground>
   );

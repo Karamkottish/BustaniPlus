@@ -7,7 +7,8 @@ import {
   ScrollView,
   Dimensions,
   Image,
-  SafeAreaView
+  SafeAreaView,
+  Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -15,6 +16,8 @@ import { BlurView } from 'expo-blur';
 import AgriTechBackground from '@/components/AgriTechBackground';
 import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
+import LogoutModal from '@/components/LogoutModal';
 
 // Reusing ImagePlaceholder for consistency if available, otherwise defining minimal one
 const ImagePlaceholder = ({ initials }: { initials: string }) => (
@@ -27,6 +30,7 @@ const { width } = Dimensions.get('window');
 
 export default function ProducerHome() {
   const router = useRouter();
+  const [showLogout, setShowLogout] = useState(false);
 
   return (
     <AgriTechBackground>
@@ -45,7 +49,10 @@ export default function ProducerHome() {
                 <Text style={styles.greeting}>Good Morning,</Text>
                 <Text style={styles.name}>Producer John</Text>
               </View>
-              <Pressable style={styles.profileBtn}>
+              <Pressable
+                style={styles.profileBtn}
+                onPress={() => setShowLogout(true)}
+              >
                 <ImagePlaceholder initials="PJ" />
               </Pressable>
             </View>
@@ -122,6 +129,14 @@ export default function ProducerHome() {
           </View>
 
         </ScrollView>
+        <LogoutModal
+          visible={showLogout}
+          onClose={() => setShowLogout(false)}
+          onLogout={() => {
+            setShowLogout(false);
+            router.replace('/choose-role');
+          }}
+        />
       </View>
     </AgriTechBackground>
   );

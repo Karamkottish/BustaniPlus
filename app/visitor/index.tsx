@@ -1,14 +1,18 @@
 import { View, Text, StyleSheet, Pressable, Animated, Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { BlurView } from 'expo-blur';
+import LogoutModal from '@/components/LogoutModal';
 
 const { width } = Dimensions.get('window');
 
 export default function VisitorHome() {
   const router = useRouter();
   const tabBarHeight = useBottomTabBarHeight();
+  const [showLogout, setShowLogout] = useState(false);
 
   // 🌱 Plant
   const plantGrow = useRef(new Animated.Value(0)).current;
@@ -111,6 +115,16 @@ export default function VisitorHome() {
           style={styles.sky}
         />
 
+        {/* Logout Button */}
+        <Pressable
+          style={styles.logoutBtnWrapper}
+          onPress={() => setShowLogout(true)}
+        >
+          <BlurView intensity={30} tint="light" style={styles.logoutBtnBlur}>
+            <Ionicons name="log-out-outline" size={24} color="#1E7F5C" />
+          </BlurView>
+        </Pressable>
+
         {/* ☀️ SUN */}
         <Animated.View
           style={[
@@ -185,6 +199,15 @@ export default function VisitorHome() {
 
         <View style={styles.soil} />
       </View>
+
+      <LogoutModal
+        visible={showLogout}
+        onClose={() => setShowLogout(false)}
+        onLogout={() => {
+          setShowLogout(false);
+          router.replace('/choose-role');
+        }}
+      />
     </View>
   );
 }
@@ -206,6 +229,28 @@ const styles = StyleSheet.create({
   sky: {
     ...StyleSheet.absoluteFillObject,
   },
+
+  logoutBtnWrapper: {
+    position: 'absolute',
+    top: 54,
+    right: 24,
+    borderRadius: 22,
+    overflow: 'hidden',
+    zIndex: 100,
+    shadowColor: '#1E7F5C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  logoutBtnBlur: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.45)', // Glassy
+  },
+
   heroContent: {
     marginTop: 90,
     paddingHorizontal: 20,
