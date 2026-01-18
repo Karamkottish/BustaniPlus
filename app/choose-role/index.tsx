@@ -16,6 +16,7 @@ import { Svg, Circle, Path, Rect } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import VisitorConfirmPopup from '../components/VisitorConfirmPopup';
+import RegisterModal from '../components/RegisterModal';
 
 
 const { height, width } = Dimensions.get('window');
@@ -104,6 +105,7 @@ export default function ChooseRoleScreen() {
   const [active, setActive] = useState<Role | null>(null);
   const [overlayRole, setOverlayRole] = useState<Role | null>(null);
   const [visitorPopup, setVisitorPopup] = useState(false);
+  const [registerVisible, setRegisterVisible] = useState(false);
   const flip = useRef(new Animated.Value(0)).current;
   const open = useRef(new Animated.Value(0)).current;
   const keyboardY = useRef(new Animated.Value(0)).current;
@@ -251,6 +253,13 @@ export default function ChooseRoleScreen() {
         </Pressable>
       </View>
 
+      <View style={styles.signupContainer}>
+        <Text style={styles.signupText}>Don't have an account? </Text>
+        <Pressable onPress={() => setRegisterVisible(true)}>
+          <Text style={styles.signupLink}>Sign Up</Text>
+        </Pressable>
+      </View>
+
       {overlayRole && (
         <PanGestureHandler onGestureEvent={onGestureEvent} onEnded={onGestureEnd}>
           <Animated.View
@@ -277,6 +286,11 @@ export default function ChooseRoleScreen() {
       <VisitorConfirmPopup
         visible={visitorPopup}
         onClose={() => setVisitorPopup(false)}
+      />
+
+      <RegisterModal
+        visible={registerVisible}
+        onClose={() => setRegisterVisible(false)}
       />
 
     </LinearGradient>
@@ -337,4 +351,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loginButtonText: { color: '#FFFFFF', fontWeight: '700', fontSize: 16 },
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 24,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingVertical: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  signupText: {
+    color: '#CDE7DF',
+    fontSize: 15,
+  },
+  signupLink: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 15,
+    textDecorationLine: 'underline',
+  },
 });

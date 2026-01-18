@@ -208,3 +208,5 @@ export const onboardingSlides = [
     },
   },
 ];
+
+export default onboardingSlides;

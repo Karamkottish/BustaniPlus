@@ -2,7 +2,7 @@ export type Citrus = {
     id: string;
     name: string;
     price: number;
-    image: string; // Emoji for now
+    image: string;
     description: string;
 };
 
